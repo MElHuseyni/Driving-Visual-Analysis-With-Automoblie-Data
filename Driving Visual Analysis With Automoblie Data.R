@@ -1,7 +1,7 @@
 library(plyr)
 library(ggplot2)
 library(reshape2)
-setwd("C:/Users/mahmo/Downloads")
+#setwd("~ your directory")
 vehicles <- read.csv(unz("vehicles.csv.zip", "vehicles.csv"),
                      stringsAsFactors = F)
 head(vehicles)
