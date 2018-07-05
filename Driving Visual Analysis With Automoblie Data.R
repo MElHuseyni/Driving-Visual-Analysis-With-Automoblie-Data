@@ -1,16 +1,18 @@
 library(plyr)
 library(ggplot2)
 library(reshape2)
-#setwd("~ your directory")
 vehicles <- read.csv(unz("vehicles.csv.zip", "vehicles.csv"),
                      stringsAsFactors = F)
 head(vehicles)
-labels <- do.call(rbind, strsplit(readLines("varlabels.txt"),
-                                  " - "))
+labels <- do.call(rbind, strsplit(readLines("varlabels.txt")," - "))
+
 head(labels)
-nrow(vehicles)
-ncol(vehicles)
+
+dim(vehicles)
+
 names(vehicles)
+summary(vehicles)
+
 length(unique(vehicles[,"year"]))
 first_year <- min(vehicles$year)
 first_year
@@ -27,8 +29,8 @@ table(vehicles$trany2)
 mpgByYr <- ddply(vehicles, ~year,summarise,avgMPG = mean(comb08),
                  avgHghy=mean(highway08),avgCity=mean(city08))
 
-ggplot(mpgByYr,aes(year,avgMPG))+geom_point()+geom_smooth()+
-         xlab("Year")+ylab("Average MPG")+ggtitle("All Cars")
+ggplot(mpgByYr,aes(year,avgMPG)) + geom_point() + geom_smooth(method = "loess") +
+         xlab("Year") + ylab("Average MPG") + ggtitle("All Cars")
 
 table(vehicles$fuelType1)
 
@@ -37,12 +39,12 @@ gasCars <- subset(vehicles,fuelType1 %in% c("Regular Gasoline", "Premium Gasolin
 
 mpgByYr_Gas <- ddply(gasCars , ~year,summarise,avgMPG = mean(comb08))
 
-ggplot(mpgByYr_Gas,aes(year,avgMPG))+geom_point()+geom_smooth()+
+ggplot(mpgByYr_Gas,aes(year,avgMPG))+geom_point()+geom_smooth(method = "loess")+
    xlab("Year")+ylab("Average MPG")+ggtitle("Gasoline Cars")
 
 
 gasCars$displ <- as.numeric(gasCars$displ)
-ggplot(gasCars,aes(displ,comb08))+geom_point()+geom_smooth()
+ggplot(gasCars,aes(displ,comb08)) + geom_point()+geom_smooth(method = "loess")
 
 byYear <- ddply(gasCars,~ year, summarise,avgMPG = mean(comb08)
                  ,avgDispl = mean(displ))
@@ -57,13 +59,6 @@ ggplot(byYear2,aes(year,value)) + geom_point()+ geom_smooth()+
   facet_wrap(~variable, ncol=1,scales = "free_y")+xlab("Year") + ylab("")
 
 gasCars4 <- subset(gasCars,cylinders == "4")
-
-ggplot(gasCars4,aes(factor(year),comb08)) + geom_boxplot() + 
-  facet_wrap(~trany2 , ncol=1) + theme(axis.text.x = element_text(angle = 45))+ labs(x = "Year", y="MPG")
-
-ggplot(gasCars4,aes(factor(year),fill = factor(trany2))) + geom_bar(position = "fill")+
-  labs(x = "Year",y="Proportion of cars") + theme(axis.text.x = element_text(angle = 45)) + 
-  geom_hline(yintercept = 0.5,linetype = 2)
 
 carsMake <- ddply(gasCars4, ~year, summarise, numberOfMakes =
                     length(unique(make)))
